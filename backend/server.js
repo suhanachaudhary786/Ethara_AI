@@ -15,11 +15,18 @@ const status = require("./utils/httpStatus");
 
 const app = express();
 const port = process.env.PORT || 5000;
+const path = require("path");
 
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL || "*", credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
+});
 
 app.get("/api/health", (req, res) => {
   res.status(status.OK).json({ success: true, message: "API is running", database: mongoose.connection.readyState === 1 ? "connected" : "disconnected" });
